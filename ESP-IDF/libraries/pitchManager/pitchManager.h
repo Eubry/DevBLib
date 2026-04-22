@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <map>
 #include "counter.h"
-#include "pinManagement.h"
+#include "pinManager.h"
 
 // Note frequency definitions
 const std::map<std::string, uint16_t> mNote = {

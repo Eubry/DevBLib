@@ -1,4 +1,4 @@
-#include "pitches.h"
+#include "pitchManager.h"
 //--------------Frequency Note Implementation----------------
 fNote::fNote(){}
 void fNote::printNotes(){

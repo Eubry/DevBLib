@@ -68,7 +68,8 @@ void pinManager::pwmPin(std::string name, int8_t pin, uint32_t frequency, ledc_t
         .duty = 0,
         .hpoint = 0,
         .sleep_mode = LEDC_SLEEP_MODE_NO_ALIVE_NO_PD,
-        .flags = {}
+        .flags = {},
+        .deconfigure = false
     };
     ledc_channel_config(&ledc_channel);
     

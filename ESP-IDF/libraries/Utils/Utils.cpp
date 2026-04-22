@@ -21,10 +21,6 @@ void taskManager::add(const std::string& name, TaskFunction_t taskFunc, void* pa
     statusTask(result, "TASK_MANAGER", name.c_str());
     if(result == pdPASS){
         _taskMap[name] = newTask;
-        esp_err_t wdt_err = esp_task_wdt_add(newTask.handle);
-        if(wdt_err != ESP_OK){
-            ESP_LOGW("TASK_MANAGER", "Failed to add task %s to watchdog: %s", name.c_str(), esp_err_to_name(wdt_err));
-        }
     }
 }
 
