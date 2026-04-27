@@ -92,6 +92,7 @@ Volume levels:
 class fNote{
     private:
         std::map<std::string, dtaMelody> _melodies;
+        bool _isPlaying=false;
     public:
         static constexpr uint8_t REST=0,
         B0=31,
@@ -176,6 +177,7 @@ class fNote{
     void deleteMelody(std::string name);
     void playMelody(std::string name, pinManager& pinMgr, std::string buzzerId,uint8_t volume=50,int16_t speed=-1,bool reverse=false);
     dtaMelody getMelody(std::string name);
+    bool isPlaying(){return _isPlaying;}
     //void addMelody(std::string name,int melody[], uint8_t duration[]);
     ~fNote();
 };

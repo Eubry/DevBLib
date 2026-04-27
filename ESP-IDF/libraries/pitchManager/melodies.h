@@ -1,5 +1,5 @@
 #pragma once
-#include "pitches.h"
+#include "pitchManager.h"
 //--------------Frequency Note Implementation----------------
 inline void initializeMelodies(fNote &n){
     // Lower octave version (G4-C5: 392-523Hz) - Better for smaller buzzers

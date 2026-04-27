@@ -72,7 +72,41 @@ void fNote::playMelody(std::string name, pinManager& pinMgr, std::string buzzerI
         
         // Iterate forward or backward based on reverse parameter
         if(reverse){
+            _isPlaying = true;
             for(int i = melody.length - 1; i >= 0; --i){
+                int note = melody.melody[i];
+                int8_t dur = melody.duration[i];
+                divider = dur;
+                if (divider > 0) {
+                    noteDuration = (wholenote) / divider;
+                } else if (divider < 0) {
+                    // dotted notes are represented with negative durations!!
+                    noteDuration = (wholenote) / abs(divider);
+                    noteDuration *= 1.5; // increases the duration in half for dotted notes
+                }
+                if(note == REST){
+                    pinMgr.noTone(buzzerId);
+                }else{
+                    pinMgr.tone(buzzerId, note, volume);
+                }
+
+                do {
+                    timer.wait((noteDuration*0.9)*1000);
+                    vTaskDelay(pdMS_TO_TICKS(1));
+                } while(!timer.finish());
+                // Wait for note duration (convert milliseconds to microseconds)
+                pinMgr.noTone(buzzerId);
+                timer.reset();// Short pause between notes
+                do {
+                    timer.wait((noteDuration*0.1)*1000);
+                    vTaskDelay(pdMS_TO_TICKS(1));
+                } while(!timer.finish());
+                timer.reset();
+                _isPlaying = false;
+            }
+        }else{
+            _isPlaying = true;
+            for(size_t i = 0; i < melody.length; ++i){
                 int note = melody.melody[i];
                 int8_t dur = melody.duration[i];
 
@@ -90,40 +124,34 @@ void fNote::playMelody(std::string name, pinManager& pinMgr, std::string buzzerI
                     pinMgr.tone(buzzerId, note, volume);
                 }
 
-                do {timer.wait((noteDuration*0.9)*1000);} while(!timer.finish());
+                do {
+                    timer.wait((noteDuration*0.9)*1000);
+                    vTaskDelay(pdMS_TO_TICKS(1));
+                } while(!timer.finish());
                 // Wait for note duration (convert milliseconds to microseconds)
                 pinMgr.noTone(buzzerId);
                 timer.reset();// Short pause between notes
-                do {timer.wait((noteDuration*0.1)*1000);} while(!timer.finish());
+                do {
+                    timer.wait((noteDuration*0.1)*1000);
+                    vTaskDelay(pdMS_TO_TICKS(1));
+                } while(!timer.finish());
                 timer.reset();
-            }
-        }else{
-            for(size_t i = 0; i < melody.length; ++i){
-            int note = melody.melody[i];
-            int8_t dur = melody.duration[i];
-
-            divider = dur;
-            if (divider > 0) {
-                noteDuration = (wholenote) / divider;
-            } else if (divider < 0) {
-                // dotted notes are represented with negative durations!!
-                noteDuration = (wholenote) / abs(divider);
-                noteDuration *= 1.5; // increases the duration in half for dotted notes
-            }
-            if(note == REST){
-                pinMgr.noTone(buzzerId);
-            }else{
-                pinMgr.tone(buzzerId, note, volume);
-            }
-
-            do {timer.wait((noteDuration*0.9)*1000);} while(!timer.finish());
-            // Wait for note duration (convert milliseconds to microseconds)
-            pinMgr.noTone(buzzerId);
-            timer.reset();// Short pause between notes
-            do {timer.wait((noteDuration*0.1)*1000);} while(!timer.finish());
-            timer.reset();
+                _isPlaying = false;
             }
         }
     }
 }
-fNote::~fNote(){}
+fNote::~fNote(){
+    _isPlaying = false;
+    // Clean up dynamically allocated memory for melodies
+    for(auto& pair : _melodies){
+        dtaMelody& melody = pair.second;
+        if(melody.type == 1){ // Interleaved arrays
+            delete[] melody.melody;
+            delete[] melody.duration;
+        }else if(melody.type == 0){ // Separate arrays
+            delete[] melody.melody;
+            delete[] melody.duration;
+        }
+    }
+}
